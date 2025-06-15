@@ -1,0 +1,92 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+
+\title{Zadanie 2 z Listy 1 \\ \large{Dawid Pawliczek}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Treść zadania}
+Mamy dane $k$ list $L_1, L_2, \dots, L_k$, każda uporządkowana niemalejąco, zawierająca liczby całkowite. 
+Należy znaleźć przedział $[a, a + r]$ o najmniejszej możliwej długości $r$, taki że w tym przedziale znajduje się co najmniej jedna wartość z każdej listy $L_i$.
+
+\medskip
+\noindent \textbf{Ograniczenia:}
+\begin{itemize}
+  \item Nie wolno modyfikować list $L_i$ (np. scalać ich w jedną wspólną tablicę).
+  \item Algorytm powinien być oszczędny pamięciowo i możliwie jak najszybszy.
+\end{itemize}
+
+\section*{Idea rozwiązania}
+Obserwacja — stan rozwiązania można opisać za pomocą wskaźników
+\[
+  p = (p_1, p_2, \dots, p_k),
+\]
+gdzie każdy wskaźnik $p_i$ wskazuje na pewien element listy $L_i$. Dla danego stanu $p$ rozważamy przedział
+\[
+  \bigl[\min_{1 \le i \le k} L_i[p_i],\;\; \max_{1 \le i \le k} L_i[p_i]\bigr].
+\]
+Chcemy znaleźć taki stan $p$, dla którego różnica
+\[
+  \max_i L_i[p_i] - \min_i L_i[p_i]
+\]
+jest minimalna.
+
+Przesuwanie wskaźników:
+\begin{itemize}
+  \item Z założenia przesunięcie wskaźnika wskazującego na największy element \emph{zawsze} może tylko zwiększyć wartość maksymalną—nie ma więc sensu.
+  \item Optymalnie przesuwamy wskaźnik wskazujący na bieżąco najmniejszy element.
+\end{itemize}
+
+Aby w każdej iteracji w $O(\log k)$ odnaleźć, który wskaźnik wskazuje aktualnie najmniejszy element, używamy kopca typu „min-heap” o rozmiarze $k$.
+
+\section*{Algorytm w pseudokodzie}
+\begin{algorithm}[H]
+  \SetKwInOut{Input}{wejście}\SetKwInOut{Output}{wyjście}
+  \Input{Uporządkowane niemalejąco listy $L_1,\dots,L_k$.}
+  \Output{Przedział $[a,b]$ minimalizujący długość $b - a$, który pokrywa po jednym elemencie z każdej listy.}
+  \BlankLine
+  % inicjalizacja
+  $M \leftarrow -\infty$, $m \leftarrow +\infty$\;
+  niech $H$ będzie pustym kopcem typu \texttt{(wartość, indeks\_listy, indeks\_w\_liście)}\;
+  \For{$i \leftarrow 1$ \KwTo $k$}{
+    $v \leftarrow L_i[0]$\;
+    $M \leftarrow \max(M, v)$\;
+    $m \leftarrow \min(m, v)$\;
+    $H.\text{push}(\,(v,i,0)\,)$\;
+  }
+  % główna pętla
+  \While{kopiec $H$ nie jest pusty}{
+    $(v,i,j) \leftarrow H.\text{popMin}()$\;
+    \uIf{$M - m < \text{najlepsza\_długość}$}{
+      \text{aktualizuj najlepszy przedział }$[a,b] \leftarrow [m,M]$\;
+    }
+    j \;\texttt{++}\;
+    \If{ $j \ge |L_i|$ }{
+      \textbf{break}\;  % nie można dalej posuwać wskaźnika
+    }
+    $v' \leftarrow L_i[j]$\;
+    $M \leftarrow \max(M, v')$\;
+    % m zostanie ustalone przez najmniejszy element w kopcu:
+    $H.\text{push}(\,(v',i,j)\,)$\;
+    $m \leftarrow H.\text{minValue}()$\;
+  }
+  \Return $[a,b]$\;
+  \caption{Znalezienie najmniejszego przedziału zawierającego po jednym elemencie z każdej z $k$ list.}
+\end{algorithm}
+
+\section*{Złożoność obliczeniowa}
+\begin{itemize}
+  \item Każdy ze $n = \sum_i |L_i|$ elementów jest wstawiany i usuwany z kopca dokładnie raz.
+  \item Operacja wstawienia i usunięcia z kopca o rozmiarze $k$ kosztuje $O(\log k)$.
+  \item Całkowity czas: $\displaystyle O\bigl(n \log k\bigr)$.
+  \item Dodatkowa pamięć: $O(k)$ na kopiec i kilka zmiennych pomocniczych.
+\end{itemize}
+
+\end{document}

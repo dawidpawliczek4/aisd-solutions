@@ -1,0 +1,74 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 1, Zadanie 3
+\end{center}
+
+\bigskip
+
+\paragraph{Treść zadania.}
+\emph{Porządkiem topologicznym} wierzchołków acyklicznego digrafu
+$G=(V,E)$ nazywamy taki liniowy porządek jego wierzchołków, w którym
+początek każdej krawędzi występuje przed jej końcem.
+Jeśli wierzchołki z~$V$ utożsamimy z~kolejnymi liczbami naturalnymi
+$1,2,\dots,|V|$, to każdy porządek liniowy możemy opisać
+permutacją tych liczb, co pozwala również na \emph{leksykograficzne}
+porównywanie porządków.
+Ułóż algorytm, który dla zadanego acyklicznego digrafu
+znajduje \textbf{pierwszy leksykograficznie} porządek topologiczny.
+
+\bigskip
+\paragraph{Pomysł (modyfikacja algorytmu Kahna).}
+Klasyczne sortowanie topologiczne Kahna usuwa kolejno
+wierzchołki o~zerowym stopniu wejściowym (\textit{indegree}).
+Aby otrzymać pierwszą permutację leksykograficznie,
+zawsze wybieramy \emph{najmniejszy etykietą} spośród wierzchołków
+o~\textit{indegree}\;$=0$.
+Do realizacji wystarczy kolejka priorytetowa (np.\ kopiec).
+
+\bigskip
+\paragraph{Algorytm.}
+
+\begin{algorithm}[H]
+\caption{\textsc{LexicoKahn}$(G=(V,E))$}
+\begin{algorithmic}[1]
+\State $Q\gets$ pusta min‐kolejka priorytetowa
+\State $order\gets[\,]$ \Comment{wynikowa permutacja}
+\ForAll{$v\in V$}
+  \State oblicz $\text{indeg}[v]$
+  \If{$\text{indeg}[v]=0$}
+     \State $Q.\textsc{push}(v)$
+  \Fi
+\EndFor
+\While{$Q\neq\varnothing$}
+  \State $v\gets Q.\textsc{popMin}()$ \Comment{najmniejsza etykieta}
+  \State $order.\textsc{append}(v)$
+  \ForAll{następnik $u$ wierzchołka $v$}
+     \State $\text{indeg}[u]\gets\text{indeg}[u]-1$
+     \If{$\text{indeg}[u]=0$}
+        \State $Q.\textsc{push}(u)$
+     \Fi
+  \EndFor
+\EndWhile
+\State \Return{$order$}
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Złożoność.}
+Każdy wierzchołek jest dokładnie raz wstawiany i zdejmowany
+z~kopca; operacje te kosztują $O(\log |V|)$.
+Łączny czas: $O\bigl((|V|+|E|)\,\log |V|\bigr)$,
+pamięć pomocnicza: $O(|V|)$.
+
+\end{document}
