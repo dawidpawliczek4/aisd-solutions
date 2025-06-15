@@ -1,0 +1,120 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 1, Zadanie 4
+\end{center}
+
+\bigskip
+
+\section*{Treść zadania}
+
+\noindent
+\emph{Nadsłowem} zbioru słów $\{w_1,w_2,\dots,w_k\}$ nazywamy dowolne
+słowo $W$ takie, że
+\(
+  \forall_{i=1,\dots,k}\; w_i
+\)
+jest pod­słowem $W$.
+Należy napisać algorytm, który dla danego zbioru \emph{słów
+dwuliterowych} (tzn.\ $|w_i|=2$ dla każdego $i$) znajduje
+\emph{najkrótsze} jego nadsłowo
+(lub dowolne jedno z najkrótszych, gdy nie jest ono jednoznaczne).
+
+\section*{Model grafowy}
+
+Każde słowo $w_i=a_ib_i$ interpre­tujemy jako skierowaną krawędź
+$a_i\!\to b_i$ w grafie $G=(V,E)$, gdzie $V$ jest zbiorem wszystkich
+liter występujących w wejściu.
+Słowo $W=v_0v_1\dots v_\ell$ jest nadsłowem wtedy
+i tylko wtedy, gdy przebiegając kolejne krawędzie
+$v_0\!\to v_1,\;v_1\!\to v_2,\dots$
+odwiedzamy \emph{każdą} krawędź z~$E$
+co najmniej raz.
+Szukamy zatem ścieżki (lub cyklu) Eulera w~$G$,
+przy czym powtórne przejścia po krawędziach wydłużają wynik
+– interesuje nas najkrótsza ścieżka obejmująca wszystkie krawędzie.
+
+\section*{Redukcja do cyklu Eulera}
+
+\begin{description}
+  \item[Spójność.]
+        Jeśli $G$ nie jest spójny, konstruujemy rozwiązanie osobno
+        dla każdej składowej, a następnie łączymy otrzymane słowa
+        w~dowolnej kolejności; ich konkatenacja wciąż zawiera wszystkie
+        wejściowe krawędzie.
+  \item[Niespełnienie warunku Eulera.]
+        W spójnej składowej
+        istnieje ścieżka Eulera
+        wtedy i tylko wtedy, gdy \\
+        \centerline{$\bigl|\{v: \text{outdeg}(v)=\text{indeg}(v)+1\}\bigr|=%
+                   \bigl|\{v: \text{indeg}(v)=\text{outdeg}(v)+1\}\bigr|=1$,}
+        a~dla cyklu Eulera gdy
+        $\text{indeg}(v)=\text{outdeg}(v)$ dla każdego~$v$.
+        Aby ujednolicić przypadki,
+        dodajemy nowy wierzchołek $\varepsilon$ (pusta litera)
+        oraz tyle krawędzi $v\!\to\varepsilon$ lub $\varepsilon\!\to v$,
+        ile potrzeba, by zrównoważyć stopnie wszystkich
+        wierzchołków – wtedy cały graf \emph{zawsze} posiada
+        cykl Eulera.  Litery $\varepsilon$ pomijamy w końcowym słowie.
+\end{description}
+
+\section*{Algorytm}
+
+\begin{algorithm}[H]
+\caption{\textsc{Superword}$(\{w_1,\dots,w_k\})$}
+\begin{algorithmic}[1]
+\State $G=(V,E)\gets(\varnothing,\varnothing)$
+\ForAll{$w_i=a_ib_i$}
+  \State $V\gets V\cup\{a_i,b_i\}$;\quad $E\gets E\cup\{a_i\!\to b_i\}$
+\EndFor
+\State $W\gets\text{``''}$
+\ForAll{spójna składowa $G'=(V',E')$ grafu $G$}
+  \If{$G'$ spełnia warunek cyklu Eulera}
+     \State $P\gets$ cykl Eulera w $G'$ (np.\ alg.~Hierholzera)
+  \Else
+     \State dodaj nowy wierzchołek $\varepsilon$ do $V'$
+     \State wyrównaj stopnie, dodając krawędzie
+            $\varepsilon\!\leftrightarrow v$ w~miarę potrzeby
+     \State $P\gets$ cykl Eulera w~tak rozszerzonym $G'$
+     \State usuń z~$P$ wszystkie wystąpienia $\varepsilon$
+  \EndIf
+  \State $W\gets W\,+$ litery ścieżki $P$
+\EndFor
+\State \Return{$W$}
+\end{algorithmic}
+\end{algorithm}
+
+\section*{Złożoność}
+
+Niech $n=|V|$, $m=|E|=k$.
+Konstrukcja grafu i obliczenie stopni trwa $O(n+m)$.
+Dla każdej składowej wywołujemy algorytm Hierholzera
+$O(n'+m')$, co łącznie daje~$O(n+m)$.
+Pamięć pomocnicza: $O(n+m)$.
+
+\section*{Poprawność -- szkic}
+
+\begin{enumerate}
+  \item \textbf{Pokrycie krawędzi.} Każde słowo powstaje ze
+        ścieżki/cyklu Eulera, więc zawiera wszystkie krawędzie wejścia,
+        zatem jest nadsłowem.
+  \item \textbf{Minimalność.} Algorytm Hierholzera przechodzi każdą
+        krawędź dokładnie raz; ewentualne krawędzie do $\varepsilon$
+        odpowiadają dokładnie niezbilansowanym przejściom, które i tak
+        musiałyby zostać pokryte przez dodatkowe litery w~dowolnym
+        nadsłowie.  Po pominięciu $\varepsilon$ otrzymujemy zatem
+        najkrótsze możliwe słowo.
+\end{enumerate}
+
+\end{document}
