@@ -1,0 +1,120 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+\vspace{2mm}
+\textbf{Union–Find}\\[1ex]
+Dowód, że koszt zamortyzowany wynosi $O\!\bigl(n\log^{\!*}\!n\bigr)$
+\end{center}
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Definicje}
+
+\begin{itemize}
+  \item Każdy węzeł $x$ ma atrybut \emph{rank}\,$(x)$.
+  \item \texttt{makeSet}$(x)$ ustawia $rank(x)=0$ i $parent(x)=x$.
+  \item \texttt{union}$(x,y)$~łączy dwa zbiory:
+        korzeniem zostaje ten, którego ranga jest większa;
+        przy rangach równych wybieramy dowolny i
+        \emph{zwiększamy} jego rangę o~1.
+  \item \texttt{find}$(x)$ zwraca korzeń zbioru
+        oraz ustawia dla każdego odwiedzonego węzła
+        $parent=\text{korzeń}$ (kompresja ścieżek).
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Lemat 1}
+
+\textbf{Twierdzenie.}
+\emph{Wysokość każdego drzewa jest nie większa niż ranga jego korzenia.}
+
+\smallskip
+\textbf{Dowód.}
+Rangę zwiększamy tylko wtedy, gdy łączymy \emph{dwa} drzewa
+o~tej samej randze $r$, wybierając jeden korzeń
+i nadając mu rangę $r+1$.
+Wysokość nowego drzewa rośnie wówczas najwyżej o~1,
+czyli również maksymalnie do $r+1$.
+Kroki indukcyjne zachowują tezę, a dla rangi~0 jest ona oczywista.
+\hfill$\square$
+
+\medskip
+Uwaga: kompresja ścieżek może zmniejszyć wysokość drzewa,
+dlatego nierówność nie działa w drugą stronę.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Lemat 2}
+
+\textbf{Twierdzenie.}
+\emph{Dla każdego węzła $x$~~$rank(x)\le\lfloor\log_2 n\rfloor$.}
+
+\smallskip
+\textbf{Dowód.}
+Aby ranga węzła osiągnęła wartość $r$,
+musiało się połączyć co najmniej $2^{r}$ elementów:
+każdy wzrost rangi wymaga scalenia
+dwóch drzew o~tej samej randze.  
+Zatem $2^{r}\le n$, skąd $r\le\log_2 n$.
+\hfill$\square$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Grupowanie rang a~$\log^{\!*}$}
+
+Zamiast śledzić każdy \emph{pojedynczy} wzrost rangi (jest ich
+$\le\log_2 n$), grupujemy je w~\textbf{poziomy}.
+Definiujemy
+\[
+F(0)=1,\quad F(i)=2^{F(i-1)}\;(i\ge1).
+\]
+Poziom~$i$ zawiera wszystkie rangi
+\(
+F(i-1) < r \le F(i).
+\)
+Liczba poziomów potrzebnych,
+by objąć maksymalną rangę $\le\log_2 n$,
+wynosi $\log^{\!*}\!n$, ponieważ $F\bigl(\log^{\!*}\!n\bigr)\ge n$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Ile razy węzeł może zmienić rodzica?}
+
+Podczas \texttt{find} każdy odwiedzony węzeł $v$ ustawia
+\(
+ parent(v)\leftarrow\text{korzeń}
+\)
+czyli na węzeł o \emph{ściśle większej} randze.
+Węzeł może więc „awansować” co najwyżej:
+raz z poziomu~0 do~1, raz z~1 do~2, \dots\
+Łącznie najwyżej $\log^{\!*}\!n$ razy.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Koszt operacji}
+
+\begin{itemize}
+  \item \texttt{union} -- koszt $O(1)$.
+  \item \texttt{find} -- dla każdego odwiedzonego węzła:
+        \begin{itemize}
+           \item odczyt \texttt{parent} -- $O(1)$,
+           \item zapis nowego \texttt{parent} --
+                 \emph{co najwyżej} $\log^{\!*}\!n$ razy w~całej
+                 sekwencji operacji.
+        \end{itemize}
+\end{itemize}
+
+Przy $n$ elementach łączny koszt wszystkich zmian rodzica to
+$O\!\bigl(n\log^{\!*}\!n\bigr)$,
+a pozostałe odczyty i~\texttt{union}-y mieszczą się w $O(n)$.
+Stąd amortyzowany koszt sekwencji $m=O(n)$ operacji wynosi
+\[
+  O\!\bigl(n\log^{\!*}\!n\bigr).
+\]
+
+\end{document}
