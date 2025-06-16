@@ -1,0 +1,127 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 2, Zadanie 2
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Treść zadania}
+
+Danych jest $n$ odcinków
+\(
+  I_j=\langle p_j,k_j\rangle
+\)
+leżących na osi $OX$, $j=1,\dots,n$.
+Ułożyć algorytm znajdujący zbiór
+\(S\subseteq\{I_1,\dots,I_n\}\)
+nieprzecinających się odcinków
+o~największej mocy~\(|S|\).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Intuicja}
+
+\paragraph{Dynamiczne~DP (pomysł odrzucony).}
+Można próbować rozwiązać problem
+przez DP: \(\text{dp}[i][j]\) –
+maksymalna liczba odcinków mieszczących się
+w przedziale \([i,j]\).
+Wzór rekurencyjny:
+\[
+  \text{dp}[i][j]=
+  \max_{\substack{I=\langle k,k'\rangle\\i\le k<k'\le j}}
+  \bigl(
+     \text{dp}[i][k]+1+\text{dp}[k'][j]
+  \bigr),
+\]
+jednak prowadzi to do kosztu kwadratowego.
+
+\paragraph{Kluczowa obserwacja (wymiana).}
+W \emph{dowolnym} optymalnym rozwiązaniu
+można wybrać odcinek, który kończy się
+\emph{najwcześniej} spośród wszystkich.
+Jeśli optymalne rozwiązanie tego nie robi,
+zamieniamy jego pierwszy odcinek
+na odcinek o~najmniejszym~$k$:
+liczność zbioru nie spada,
+więc otrzymujemy równorzędne optimum.
+
+Stąd wynika zachłanna konstrukcja:
+wybieramy najwcześniej kończący się odcinek,
+wyrzucamy wszystkie z nim kolidujące
+i powtarzamy na pozostałych.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Algorytm zachłanny}
+
+\begin{algorithm}[H]
+\caption{\textsc{BestIntervals}}
+\begin{algorithmic}[1]
+\Require{zbiór odcinków $I=\{I_j=\langle p_j,k_j\rangle\}$}
+\Ensure{maksymalny zbiór rozłącznych odcinków}
+\State posortuj odcinki niemalejąco po~$k_j$
+\State $S\gets[\,]$;\quad$lastEnd\gets-\infty$
+\ForAll{$I_j=\langle p_j,k_j\rangle$ w~tej kolejności}
+  \If{$p_j\ge lastEnd$}
+     \State dołącz $I_j$ do $S$
+     \State $lastEnd\gets k_j$
+  \EndIf
+\EndFor
+\State \Return{$S$}
+\end{algorithmic}
+\end{algorithm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Dowód poprawności}
+
+Dowód przez \emph{wymianę}.
+Niech $S_g$ – zbiór zwrócony przez algorytm,
+$S^\star$ – dowolne optymalne rozwiązanie,
+a odcinki obu zbiorów
+posortowane rosnąco po końcach:
+\(S_g=(g_1,g_2,\dots)\), \(S^\star=(s_1,s_2,\dots)\).
+
+\begin{enumerate}
+\item
+Pierwszy odcinek algorytmu, $g_1$,
+ma najmniejszy koniec spośród wszystkich,
+więc $k(g_1)\le k(s_1)$.
+Jeżeli $g_1\ne s_1$,
+konstruujemy zbiór $S'=(g_1,s_2,s_3,\dots)$.
+Ponieważ $p(s_2)\ge k(s_1)\ge k(g_1)$,
+$g_1$ nie przecina $s_2$,
+zaś liczność $|S'|=|S^\star|$,
+więc $S'$ także jest optymalny.
+
+\item
+Stosując tę samą operację wymiany
+indukcyjnie dla kolejnych pozycji,
+otrzymujemy optymalne rozwiązanie,
+które zaczyna się prefiksem $g_1,g_2,\dots$.
+Po skończeniu indukcji całe $S_g$
+musi być optymalne,
+czyli $|S_g|=|S^\star|$.
+\end{enumerate}
+\hfill$\square$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Złożoność}
+
+Sortowanie – $O(n\log n)$,
+pętla – $O(n)$.
+Łącznie \(\;O(n\log n)\).
+Pamięć pomocnicza \(O(1)\)
+(poza~tablicą wejściową).
+
+\end{document}
