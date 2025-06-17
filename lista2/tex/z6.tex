@@ -1,0 +1,111 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 2, Zadanie 6
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Treść}
+
+Dane jest $n$-wierzchołkowe drzewo $T=(V,E)$
+oraz liczba całkowita $k\ge1$.
+Trzeba  \textbf{p}-pokolorować możliwie wiele wierzchołków,
+tak aby \emph{na każdej prostej ścieżce} znajdowało się
+\emph{co najwyżej $k$} p-pokolorowanych wierzchołków.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Intuicja}
+
+Oznaczmy przez \emph{liść} wierzchołek stopnia~1.
+Każda prosta ścieżka w~drzewie ma dwa końce,
+które możemy \emph{rozszerzyć} do liści.
+Jeśli będziemy kolorować wyłącznie liście,
+a następnie usuwać je z drzewa i
+powtarzać tę operację,  
+to w~jednym ciągu usuwania
+\emph{obydwa} końce dowolnej ścieżki
+otrzymają p-kolor najwyżej raz.
+Wykonując tę procedurę
+\(
+  \lfloor k/2\rfloor
+\)
+razy
+zabezpieczamy się,
+że na każdej ścieżce znajdą się co najwyżej
+$k$ p-wierzchołków.
+Gdy $k$ jest nieparzyste,
+można dodatkowo pokolorować
+\emph{dowolny} jeszcze niepokolorowany wierzchołek.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Algorytm}
+
+\begin{algorithm}[H]
+\caption{\textsc{MaxPColour}$(T,k)$}
+\begin{algorithmic}[1]
+\Require{drzewo $T=(V,E)$, liczba $k$}
+\Ensure{zbiór p-pokolorowanych wierzchołków}
+\State \textbf{for} $i\gets1$ \textbf{to} $\lfloor k/2\rfloor$ \textbf{do}
+   \State\hspace{1em} $L\gets$ wszystkie liście bieżącego $T$
+   \State\hspace{1em} pokoloruj każdy $v\in L$
+   \State\hspace{1em} usuń wierzchołki $L$ z~$T$
+\If{$k$ jest nieparzyste}
+   \State pokoloruj dowolny niepokolorowany $v\in V$
+\EndIf
+\State \Return{zaznaczony zbiór}
+\end{algorithmic}
+\end{algorithm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Poprawność}
+
+\begin{itemize}
+\item
+\textbf{Górne ograniczenie.}
+Po każdej iteracji usuwania liści długość
+dowolnej ścieżki skraca się o co najmniej
+dwa wierzchołki (oba końce).
+Stąd ścieżka może zawierać
+co najwyżej
+\(
+  2\cdot\lfloor k/2\rfloor
+  + (k\bmod 2) = k
+\)
+p-pokolorowanych wierzchołków.
+\item
+\textbf{Maksymalność.}
+Na drodze od każdego liścia w~głąb drzewa
+pokryliśmy dokładnie
+$\lfloor k/2\rfloor$ poziomów,
+więc dołożenie \emph{jakiegokolwiek}
+kolejnego liścia przekroczyłoby limit $k$
+na ścieżce łączącej dwa liście.
+Dodatkowy wierzchołek (gdy $k$ nieparzyste)
+te limit~$k$ dokładnie domyka.
+\end{itemize}
+Zatem algorytm koloruje optymalną liczbę
+wierzchołków.
+\hfill$\square$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Złożoność}
+
+Każdy wierzchołek jest usuwany najwyżej raz.
+Łączny czas i~pamięć wynoszą
+\(
+  O(n).
+\)
+
+\end{document}

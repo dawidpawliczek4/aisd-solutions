@@ -1,0 +1,126 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 2, Zadanie 5
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Treść}
+
+Dany jest graf $G=(V,E)$ oraz liczba całkowita $k$.
+Znaleźć możliwie największy podzbiór
+$V'\subseteq V$ taki, że dla każdego $v\in V'$
+\[
+\bigl|\{u\in V':\{u,v\}\in E\}\bigr|\;\ge\;k
+\quad\text{i}\quad
+\bigl|\{u\in V':\{u,v\}\notin E\}\bigr|\;\ge\;k.
+\]
+
+Zapisując $d_{V'}(v)$~— stopień $v$ wewnątrz $V'$,
+warunek można skrócić do
+\[
+k\;\le\;d_{V'}(v)\;\le\;(|V'|-1)-k.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Algorytm „przycinania”}
+
+\begin{algorithm}[H]
+\caption{\textsc{LargestSubset}$(G,k)$}
+\begin{algorithmic}[1]
+\State $V'\gets V$; \quad kolejka $Q\gets$ wszystkie $v\in V'$
+\While{$Q\neq\varnothing$}
+   \State zdejmij $v$ z $Q$
+   \State \textbf{if } $d_{V'}(v)<k$ \textbf{or}
+          $d_{V'}(v) > |V'|-1-k$
+          \textbf{then}
+          usuń $v$ z $V'$ i dołóż wszystkich sąsiadów/niesąsiadów
+          $v$ do~$Q$ (bo ich stopnie mogły się zmienić)
+\EndWhile
+\State \Return{$V'$}
+\end{algorithmic}
+\end{algorithm}
+
+Idea: \emph{usuwamy każdą sprzeczną z~warunkiem $(k,k)$
+końcówkę — aż do ustalenia się zbioru.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Dowód poprawności}
+
+\begin{description}
+\item[1. Zatrzymanie.]
+   Gdy algorytm kończy, każdy węzeł $v\in V'$
+   spełnia
+   \(
+     k\le d_{V'}(v)\le |V'|-1-k,
+   \)
+   więc $V'$ jest \emph{poprawne}.
+
+\item[2. Nietracenie kandydatów.]
+   Rozważ węzeł $v$ usuwany w pewnym kroku,
+   gdy aktualny zbiór ma rozmiar $s=|V'|$ i
+   stopień $d=d_{V'}(v)$.
+
+   \begin{itemize}
+   \item Gdy $d<k$,
+         dalsze kroki kasują \emph{tylko} wierzchołki,
+         więc stopień $v$ mógłby już
+         \underline{tylko spadać}.
+         Warunku $d\ge k$ nie da się odtworzyć.
+
+   \item Gdy $d> s-1-k$,
+         liczba niesąsiadów $v$ wynosi
+         $s-1-d<k$.
+         Usuwając jakiekolwiek wierzchołki:
+         \[
+           (s-1)\!-\!d \longrightarrow (s-2)\!-\!(d-1)
+           =(s-1-d)\;<k,
+         \]
+         więc wciąż $mniej$ niż $k$.
+         Warunku także nie da się przywrócić.
+   \end{itemize}
+   W obu przypadkach $v$ nie może należeć
+   do \emph{żadnego} poprawnego nadzbioru
+   obecnego $V'$.  Usuwanie jest zatem bezpieczne.
+
+\item[3. Maksymalność.]
+   Dowolny poprawny zbiór $S$
+   jest podzbiorem zbioru operacyjnego
+   na każdym etapie pętli,
+   bo usuwamy wyłącznie węzły,
+   które w $S$ znajdować się nie mogą
+   (punkt~2).
+   Po zakończeniu algorytmu
+   zachodzi $S\subseteq V'$,
+   więc rozmiar $V'$ jest
+   \emph{co najmniej} tak duży, jak największy $S$.
+\end{description}
+
+Zatem zwrócony $V'$ jest największym
+możliwym podzbiorem spełniającym wymaganie.
+\hfill$\square$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Złożoność}
+
+Każdy wierzchołek trafia do kolejki
+co najwyżej tyle razy, ilu ma sąsiadów,
+więc łączny koszt to
+\[
+  O\bigl(|V|+|E|\bigr)
+\]
+przy wykorzystaniu prostych liczników stopni.
+
+\end{document}
