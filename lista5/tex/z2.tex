@@ -1,0 +1,100 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 5, Zadanie 2
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Teza}
+
+W modelu \emph{liniowych drzew decyzyjnych}\footnote{
+Każdy test ma postać
+$A_1x_1+\dots+A_nx_n\;\;\mathop{\bowtie}\;0$,
+gdzie $\bowtie\in\{<,=,>\}$, zaś w liściach
+zwracane są ciągi indeksów punktów tworzących otoczkę wypukłą.}
+każdy algorytm obliczający otoczkę wypukłą
+$n$ punktów na płaszczyźnie
+musi w~najgorszym przypadku wykonywać
+$\Omega(n\log n)$ porównań.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Konstrukcja instancji}
+
+Umieszczamy $2n$ par różnobiegunowych punktów
+na~jednostkowym okręgu, co drugiemu
+nadając etykietę \emph{czarny}, a pozostałym – \emph{biały}.
+Czarne punkty pozostają w ustalonych pozycjach,
+natomiast białe będą \emph{permuto­wane}
+wzdłuż swoich miejsc „na zegarze”
+(rysunek pomijamy).
+
+Łącznie istnieje $(n!)$ permutacji białych punktów;
+poniżej pokażemy, że \textbf{każda z nich
+prowadzi do innej otoczki wypukłej}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Dlaczego permutacje różnią odpowiedź}
+
+Niech $p,q$ będą dwoma kolejnymi białymi punktami
+na otoczce dla pewnej permutacji $\pi$.
+Jeśli w permutacji $\pi'$ punkty te zamienimy miejscami,
+to w~miarę zbliżania się do siebie
+(przy zachowaniu okręgu)
+krawędź $pq$ skraca się i gdy punkty zetkną się,
+odcinek $pq$ znajdzie się wewnątrz
+otoczki tworzonej przez pozostałe wierzchołki.
+Stąd po dowolnej zamianie kolejności białych punktów
+zestaw \emph{wierzchołków} otoczki zmienia się,
+a więc procedura musi rozróżnić
+każdą z $(n!)$ permutacji.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Liczenie liści}
+
+W liniowym drzewie decyzyjnym każdy
+liść odpowiada \emph{jednej} możliwej odpowiedzi.
+Skoro odpowiedzi jest $n!$, drzewo ma
+co najmniej $n!$ liści.
+Drzewo binarne o $L$ liściach ma wysokość
+$\;\ge\lceil\log_2 L\rceil$,
+więc wysokość naszego drzewa to
+\[
+  \Omega\!\bigl(\log (n!)\bigr)
+  \;=\;
+  \Omega(n\log n).
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Konkluzja}
+
+Każde liniowe drzewo decyzyjne
+rozwiązujące problem otoczki wypukłej
+musi mieć wysokość 
+$\Omega(n\log n)$,
+co wyznacza dolną granicę
+\(
+  \Omega(n\log n)
+\)
+na liczbę niezbędnych porównań.
+\hfill$\square$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Uwaga.}
+Klasyczny dowód można też oprzeć
+na redukcji z~sortowania
+(umieszczamy punkty $(x_i,x_i^2)$ na paraboli);
+zaprezentowana argumentacja okręgowa
+nie odwołuje się do operacji nieliniowych,
+tym samym bezpośrednio wpisuje się
+w model liniowych testów.
+\end{document}

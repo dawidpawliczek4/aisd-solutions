@@ -1,0 +1,134 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Notatka -- \textit{Longest Increasing Subsequence}
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Treść}
+
+Dla danej tablicy $A[1\dots n]$ należy znaleźć
+\emph{najdłuższy ściśle rosnący podciąg}
+(nie koniecznie spójny!) jej elementów.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Rozwiązanie $O(n^2)$ – dynamiczne}
+
+\paragraph{Definicja stanu.}
+\[
+  \text{dp}[i] \;=\;
+  \text{długość LIS kończącego się dokładnie na pozycji } i.
+\]
+\[
+  \text{dp}[i]=
+    1 + \max_{\substack{j<i\\A[j]<A[i]}}\text{dp}[j],
+  \quad
+  \text{dp}[i]=1 \text{ jeśli brak takiego } j.
+\]
+
+\begin{algorithm}[H]
+\caption{\textsc{NaiveLIS}}
+\begin{algorithmic}[1]
+\Require{$A[1\dots n]$}
+\Ensure{długość LIS i jeden taki podciąg}
+\State \textbf{for} $i\gets1$ \textbf{to} $n$:
+   \State\hspace{1em}$\text{dp}[i]\gets1$, $\text{prev}[i]\gets0$
+   \State\hspace{1em}\textbf{for} $j\gets1$ \textbf{to} $i-1$:
+      \If{$A[j]<A[i]$ \textbf{and} $\text{dp}[j]+1>\text{dp}[i]$}
+         \State\hspace{2em}$\text{dp}[i]\gets\text{dp}[j]+1$
+         \State\hspace{2em}$\text{prev}[i]\gets j$
+      \EndIf
+\State $\text{best}\gets\arg\max_i\text{dp}[i]$
+\State odtwarzaj ciąg cofając się po wskaźnikach \texttt{prev}
+\State \Return{($\text{dp}[\text{best}]$, ciąg)}
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Odzyskiwanie podciągu.}
+Tablica \texttt{prev} wskazuje poprzedni wybrany indeks.
+Startujemy od \texttt{best} i idziemy wstecz,
+odwracając otrzymaną listę – otrzymujemy poprawny LIS.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Rozwiązanie $O(n\log n)$ – patience sorting}
+
+\paragraph{Idea.}
+Utrzymujemy tablicę \(
+  \text{tail}[l]
+\) –
+najmniejszą możliwą \emph{wartość końcową}
+rosnącego podciągu długości $l$.
+Wektor \texttt{tail} jest rosnący, więc
+aktualizacje wykonujemy wyszukiwaniem binarnym.
+
+\paragraph{Algorytm.}
+\begin{algorithm}[H]
+\caption{\textsc{FastLIS}}
+\begin{algorithmic}[1]
+\Require{$A[1\dots n]$}
+\Ensure{długość LIS i jeden taki podciąg}
+\State $\text{tail}[0]\gets-\infty$;\;
+       $\text{pos}[0]\gets0$     \Comment{wartość i pozycja końca}
+\State $\text{len}\gets0$
+\For{$i\gets1$ \textbf{to} $n$}
+   \State $l\gets$ najmniejsze $p\in[1,\text{len}]$
+          z $\text{tail}[p]\ge A[i]$
+          \textbf{(binarne szukanie)}  
+   \If{nie znaleziono} $l\gets\text{len}+1$
+   \State $\text{tail}[l]\gets A[i]$; \,
+          $\text{pos}[l]\gets i$      \Comment{aktualizacja wartości}
+   \State $\text{pred}[i]\gets\text{pos}[l-1]$ \Comment{poprzednik w LIS}
+   \State $\text{len}\gets\max(\text{len},\,l)$
+\EndFor
+\State
+\begin{minipage}[t]{0.9\linewidth}
+\textbf{rekonstrukcja:}\\
+$k\gets\text{pos}[\text{len}]$;\quad
+\textbf{while} $k\neq0$:
+  wypisz $A[k]$,\, $k\gets\text{pred}[k]$\\
+odwróć otrzymaną listę
+\end{minipage}
+\State \Return{($\text{len}$, ciąg w poprawnej kolejności)}
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Dlaczego działa?}
+Jeśli mamy dwa podciągi tej samej długości,
+ten z mniejszym elementem końcowym jest lepszy,
+bo daje większą szansę przedłużenia.
+Stąd zawsze warto nadpisać
+pierwszy element w \texttt{tail}
+\emph{większy równy} od $A[i]$.
+
+\paragraph{Rekonstrukcja.}
+\texttt{pos} zapamiętuje indeks w tablicy $A$,
+na którym dany ogon \texttt{tail} powstał.
+\texttt{pred}[i] wskazuje poprzedni element
+podciągu kończącego się w $A[i]$.
+Śledząc wskazania od ostatniego indeksu
+podciągu długości \texttt{len}
+otrzymujemy LIS w~odwrotnym porządku.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Złożoność}
+
+\[
+  O(n^2) \text{ — wersja DP},
+  \qquad
+  O(n\log n) \text{ — wersja szybka}
+\]
+z pamięcią $O(n)$ (obie metody).
+
+\end{document}
