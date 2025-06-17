@@ -1,0 +1,159 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 3, Zadanie 4
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Treść}
+
+Dana jest kolekcja $n$ prostych
+\(
+  l_i :\; y=a_i x + b_i
+  \;(i=1,\dots,n)
+\)
+na płaszczyźnie, przy czym żadne trzy nie przecinają się
+w~jednym punkcie.
+Mówimy, że prosta $l_i$ jest \emph{widoczna}
+z~punktu $(0,+\infty)$,
+jeśli istnieje punkt $q\in l_i$ taki,
+że odcinek $(0,+\infty)\,q$
+nie przecina żadnej innej prostej (oprócz, ewentualnie, w~punkcie~$q$).
+Zaprojektować algorytm znajdujący wszystkie widoczne proste.
+
+Geometria patrzenia „z~góry” sprowadza problem
+do wyznaczenia \emph{górnej obwiedni} układu prostych.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Rozwiązanie}
+
+\subsection*{1. Wstępne sortowanie}
+
+\begin{itemize}
+\item
+Posortuj proste rosnąco według współczynnika kierunkowego $a$.
+\item
+Jeżeli dwie proste mają ten sam $a$, pozostaw tylko tę
+o większym~$b$ (druga leży \emph{niżej},
+więc nigdy nie będzie widoczna).
+\end{itemize}
+
+\subsection*{2. Budowa obwiedni stosem}
+
+Przechodzimy po posortowanej liście.
+Stos $S$ przechowuje zawsze aktualny zestaw widocznych prostych
+w~kolejności rosnących $a$.
+
+\begin{algorithm}[H]
+\caption{\textsc{VisibleLines}}
+\begin{algorithmic}[1]
+\Require{lista $L$ posortowana wg $a$ (po kroku 1)}
+\Ensure{zbiór linii widocznych z $(0,+\infty)$}
+\State $S\gets$ pusty stos
+\ForAll{$l$ w~$L$}                           \Comment{$l:y=ax+b$}
+   \While{$|S|\ge2$}
+      \State niech $l_1$ = $S\text{.top()}$, $l_2$ = drugi od góry w $S$
+      \State wyznacz $x$‐owe współrzędne punktów
+             przecięcia $l_1\cap l_2$ oraz $l_2\cap l$
+      \If{${\rm x}(l_1\cap l_2)\;\ge\;{\rm x}(l_2\cap l)$}
+         \State $S.\text{pop()}$  \Comment{$l_1$ zasłonięty — usuń}
+      \Else \textbf{break}
+      \EndIf
+   \EndWhile
+   \State $S.\text{push}(l)$
+\EndFor
+\State \Return{$S$}
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Komentarz.}
+Jeśli punkt przecięcia nowej prostej $l$
+z poprzednikiem $l_2$ leży \emph{na lewo}
+od przecięcia $l_2$ z~$l_1$,
+to $l_1$ znajduje się całkowicie pod obwiednią
+i znika z~widoku; pętla \texttt{while} usuwa
+kolejne takie linie aż warunek przestanie być spełniony.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Poprawność}
+
+\begin{enumerate}
+\item \textbf{(Usuwanie nadmiarowych linii o tym samym $a$).}  
+      Jeśli $a_i=a_j$ i $b_i<b_j$, linia $l_i$ leży pod $l_j$ dla
+      każdego $x$; z~punktu $(0,+\infty)$ nigdy nie może być zatem
+      widoczna.  Jej odrzucenie nie wpływa na wynik.
+
+\item \textbf{(Monotoniczność przecięć).}  
+      Niech stos zawiera (od dołu) linie
+      $l_0,l_1,\dots,l_t$ w kolejności rosnących współczynników $a$.  
+      Łatwo sprawdzić, że
+      \[
+        x\bigl(l_{t-1}\!\cap l_t\bigr)
+        \;<\;
+        x\bigl(l_{t}\!\cap l\bigr)
+      \]
+      oznacza, iż $l_t$ i $l$ przecinają się \emph{na prawo} od
+      przecięcia $l_{t-1}$ z $l_t$.  
+      Odcinek $l_tl$ wypukłej obwiedni pozostaje więc odkryty; $l_t$
+      musi zostać w odpowiedzi, a pętla \texttt{while} się kończy.
+
+\item \textbf{(Warunek usuwania).}  
+      Jeśli natomiast
+      $
+        x(l_{t-1}\!\cap l_t)
+        \ge
+        x(l_t\!\cap l),
+      $
+      cała prosta $l_t$ leży pod odcinkiem obwiedni
+      łączącym $l_{t-1}$ z $l$.  
+      Z~punktu $(0,+\infty)$ $l_t$ jest całkowicie zasłonięta,
+      więc jej usunięcie zachowuje zbiór linii widocznych.
+      Utrwalenie tej właściwości dla kolejnych
+      linii zapewnia, że stos zawiera
+      wyłącznie krawędzie końcowej obwiedni.
+
+\item \textbf{(Zużycie każdej linii najwyżej raz).}  
+      Każda linia trafia na stos raz
+      i z niego schodzi najwyżej raz,
+      nie może więc zostać „nadmiernie” odsiana.
+\end{enumerate}
+
+Po przetworzeniu całego wejścia
+stos zawiera dokładnie te i tylko te proste,
+które tworzą górną obwiednię,
+a więc są widoczne z~punktu $(0,+\infty)$.
+\hfill$\square$
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Złożoność}
+
+\begin{itemize}
+\item
+Sortowanie po współczynniku $a$: \;\;$O(n\log n)$.
+\item
+Pętla główna: każde wstawienie lub usunięcie
+to koszt $O(1)$, a każda linia
+może być wypchnięta ze stosu najwyżej raz –
+łącznie $O(n)$.
+\end{itemize}
+
+\[
+\boxed{\;T(n)=O(n\log n)\;}, \qquad
+\boxed{\;\text{pamięć } O(n)\;}
+\]
+
+\end{document}
