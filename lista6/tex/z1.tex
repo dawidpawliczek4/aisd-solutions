@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 6, Zadanie 1
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Treść}
+
+Zaproponować \emph{nierekurencyjną} wersję sortowania Quick\-sort, która
+
+\begin{itemize}
+\item działa \emph{w miejscu} — poza tablicą $A[1\dots n]$ używa tylko
+      stałej liczby zmiennych typu~\texttt{int},
+\item wykonuje co najwyżej stały czynnik więcej operacji
+      niż standardowa wersja rekurencyjna.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Idea}
+
+Klasyczny Quick\-sort zapisuje podzadania na stosie.
+Obserwacja:
+
+\begin{quote}
+\emph{Po każdej operacji \textsc{partition}
+ należy najpierw posortować \textbf{mniejszy} z dwóch
+ powstałych przedziałów, a większy „odłożyć na później”.}
+\end{quote}
+
+Zamiast stosu większy przedział zakodujemy
+\emph{bezpośrednio w tablicy} — przestawiając element,
+który bezpośrednio \emph{za} pivotem wyróżnia jego prawą granicę.
+Dwa wartowniki (wartości $+\infty$) na końcu tablicy
+gwarantują, że wyjście z jednego przedziału
+zawsze zostanie wykryte liniowym skanem.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Algorytm}
+
+\begin{algorithm}[H]
+\caption{\textsc{IterQuickSort}}
+\begin{algorithmic}[1]
+\Require{$A[1\dots n]$ (elementy różne);\\
+         $+\infty$ większe niż każdy $A[i]$ jest zapisywalne}
+\Ensure{$A$ — posortowana rosnąco}
+\State $A[n+1]\gets +\infty$;\;$A[n+2]\gets +\infty$
+\State $l\gets1$;\;$r\gets n$                     \Comment{aktualny przedział}
+\State $M\gets16$                                 \Comment{granica dla Insertion Sort}
+\While{$l<r$}
+   \While{$r-l+1>M$}                              \Comment{duży przedział — dziel}
+      \State $(p)\gets$\textsc{HoarePartition}($A,l,r$)  \Comment{$A[p]$ = pivot}
+      \If{$p-l<r-p$}                              \Comment{lewa strona mniejsza}
+         \State $\text{swap}(A[p+1],A[r+1])$      \Comment{zapisz większy przedział}
+         \State $r\gets p-1$                      \Comment{sortuj _mniejszy_ teraz}
+      \Else                                       \Comment{prawa strona mniejsza}
+         \State $\text{swap}(A[p-1],A[l-1])$
+         \State $l\gets p+1$
+      \EndIf
+   \EndWhile
+   \State \textsc{InsertionSort}$(A,l,r)$          \Comment{krótki przedział}
+   \State                                          %%% „odczytaj” kolejny
+         $l\gets r+2$;\;$r\gets l$                 \Comment{pomiń wartownik}
+   \While{$A[r+1]<A[l-1]$}                        \Comment{szukaj kolejnej granicy}
+         \State $r\gets r+1$
+   \EndWhile
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Używana pamięć.}
+Stałe zmienne $l,r,p,M$,
+dwa wartowniki i pivot wewnątrz tablicy.
+Brak dynamicznego stosu — warunek „in place” spełniony.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Poprawność}
+
+\begin{enumerate}
+\item \textbf{Działanie \textsc{partition}.}
+      Funkcja Hoare’a rozdziela elementy na
+      \(\;A[l..p-1]\!<\!A[p]\!<\!A[p+1..r]\).
+\item \textbf{Wybór kolejności.}
+      Zawsze sortujemy \emph{mniejszy} fragment
+      (\(\min(p-l,\,r-p)\)) – gwarantuje to,
+      że rozmiar „bieżącego” przedziału
+      maleje co najwyżej o~połowę,
+      a więc liczba aktywnych przedziałów
+      w tym samym czasie nie przekracza~2.
+\item \textbf{Kodowanie większego fragmentu.}
+      Element tuż za pivotem zamieniamy
+      z pierwszym wartownikiem $(+\infty)$.
+      Dzięki temu liniowy skan od pivot+1
+      napotyka pierwszy element $>\!$pivot
+      dokładnie w~miejscu, gdzie zaczyna się
+      odłożony przedział i jego granice są odzyskiwane.
+\item \textbf{Terminacja.}
+      Każdy element może zostać pivotem
+      najwyżej raz; dla podtablic
+      nie większych niż $M$
+      używamy sortowania przez wstawianie.
+      Algorytm kończy, gdy \(l\ge r\)
+      (całość posortowana).
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Złożoność}
+
+\begin{itemize}
+\item \textbf{Czas:}
+      identyczny jak klasycznego Quick\-sorta
+      z tą samą procedurą wyboru pivota.
+      W średnim przypadku
+      \(
+        T(n)=\Theta(n\log n)
+      \),
+      w najgorszym \(\Theta(n^2)\);
+      stała ukryta w~symbolu $\Theta$
+      nie rośnie — zamiana stosu
+      na kodowanie granic kosztuje $O(1)$
+      na każdą wywołaną \textsc{partition}.
+\item \textbf{Pamięć:}
+      dokładnie \(\;O(1)\) słów \texttt{int}
+      poza tablicą $A$.
+\end{itemize}
+
+\end{document}

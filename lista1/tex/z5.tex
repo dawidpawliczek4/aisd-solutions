@@ -1,0 +1,128 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Lista 1, zadanie 5\\
+
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Założenia i notacja}
+
+Dany jest skierowany graf acykliczny
+\(G=(V,E)\), \(|V|=n\), \(|E|=m\).
+Długość ścieżki liczona jest w~liczbie krawędzi.
+Zakładamy, że graf jest przedstawiony listami
+następników.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Liczenie \emph{długości} najdłuższej ścieżki}
+
+\subsection*{Idea}
+W DAG-u istnieje uporządkowanie topologiczne
+\(T=(v_1,\dots,v_n)\), w którym każda krawędź
+idzie „w prawo”.
+Przechodząc w tej kolejności
+można dynamicznie uzupełniać wartość
+\[
+\text{dp}[v]=\text{długość najdłuższej ścieżki
+            kończącej się w }v .
+\]
+
+\subsection*{Algorytm}
+
+\begin{algorithm}[H]
+\caption{\textsc{LongestPathLength}}
+\begin{algorithmic}[1]
+\Require{$G=(V,E)$ — DAG}
+\Ensure{długość najdłuższej ścieżki w $G$}
+\State $T\gets$ topologiczne uporządkowanie
+       (np.\ algorytm Kahna)
+\State \textbf{for} $v\in V$: $\text{dp}[v]\gets 0$
+\For{$v$ w kolejności $T$}               \Comment{każdy wierzchołek raz}
+   \ForAll{$w$ następniki $v$}
+      \If{$\text{dp}[v]+1>\text{dp}[w]$}
+         \State $\text{dp}[w]\gets\text{dp}[v]+1$
+      \EndIf
+   \EndFor
+\EndFor
+\State \Return{$\max_{v\in V}\text{dp}[v]$}
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Złożoność.}
+Uporządkowanie topologiczne $O(n+m)$,
+pętla również $O(n+m)$.
+Pamięć $O(n)$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Wypisywanie jednej maksymalnej ścieżki}
+
+\subsection*{Modyfikacja}
+Wystarczy zapamiętywać
+poprzednik, z którego
+uzyskano najlepszą wartość \texttt{dp}.
+\[
+\text{parent}[w]=
+\begin{cases}
+v, &\text{gdy } \text{dp}[v]+1>\text{dp}[w],\\
+\texttt{nil}, &\text{jeśli brak aktualizacji.}
+\end{cases}
+\]
+
+\begin{algorithm}[H]
+\caption{\textsc{LongestPath}}
+\begin{algorithmic}[1]
+\Require{$G=(V,E)$}
+\Ensure{jedna najdłuższa ścieżka w kolejności źródło→cel}
+\State $T\gets$ topologiczne uporządkowanie
+\For{$v\in V$} $\text{dp}[v]\gets0$,\; $\text{parent}[v]\gets\texttt{nil}$ \EndFor
+\For{$v$ w $T$}
+   \ForAll{$w\in\text{succ}(v)$}
+      \If{$\text{dp}[v]+1>\text{dp}[w]$}
+         \State $\text{dp}[w]\gets\text{dp}[v]+1$
+         \State $\text{parent}[w]\gets v$
+      \EndIf
+   \EndFor
+\EndFor
+\State $u\gets\arg\max_{v}\text{dp}[v]$      \Comment{koniec ścieżki}
+\State ścieżka $\gets[\,]$
+\While{$u\neq\texttt{nil}$}
+   \State wstaw $u$ na początek ścieżki
+   \State $u\gets\text{parent}[u]$
+\EndWhile
+\State \Return{ścieżka}
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Złożoność.}
+Niezmieniona: $O(n+m)$ czasu, $O(n)$ pamięci  
+(dodatkowa tablica \texttt{parent}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Poprawność (krótko)}
+
+Przetwarzając wierzchołki w kolejności topologicznej
+mamy pewność, że dla każdej krawędzi
+\(v\!\to\!w\) wartość \(\text{dp}[v]\) jest finalna
+w momencie aktualizowania \(\text{dp}[w]\);
+otrzymujemy największą możliwą długość ścieżki
+kończącej się w $w$.  
+Indukcja po kolejnych wierzchołkach
+dowodzi poprawności tablicy \texttt{dp},
+a śledzenie \texttt{parent}
+od elementu o maksymalnym \texttt{dp}
+odtwarza ścieżkę o~tej właśnie długości.
+\hfill$\square$
+
+\end{document}

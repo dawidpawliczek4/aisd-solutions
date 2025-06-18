@@ -1,0 +1,117 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 5, Zadanie 8
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Teza}
+
+Aby wyznaczyć największy \emph{i} drugi co do wielkości element
+w~$n$-elementowym zbiorze, w~modelu drzew decyzyjnych
+\[
+  \boxed{\,n+\lceil\log_2 n\rceil-2\,}
+\]
+porównań \emph{wystarcza} i \emph{jest konieczne}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Górna granica —~$n+\lceil\log n\rceil-2$ wystarcza}
+
+\subsection*{Algorytm turniejowy}
+
+\begin{enumerate}
+\item
+Parujemy elementy i porównujemy je.
+Zwycięzcy przechodzą do następnej rundy,
+przegrani wypadają.
+\item
+Powtarzamy turniej, aż zostanie jeden \textbf{maksymalny}
+— wymaga to $n-1$ porównań.
+\item
+Największy element pokonał bezpośrednio
+dokładnie tyle elementów, ile wynosi
+wysokość drzewa turnieju:\;
+$h=\lceil\log_2 n\rceil$.
+\item
+Drugi wynik znajdujemy, porównując między sobą
+pokonanych przez maksimum — potrzeba
+$h-1=\lceil\log_2 n\rceil-1$ dodatkowych testów.
+\end{enumerate}
+
+\[
+  (n-1)+\bigl(\lceil\log_2 n\rceil-1\bigr)
+  \;=\;
+  n+\lceil\log_2 n\rceil-2.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Dolna granica —~$n+\lceil\log n\rceil-2$ jest konieczne}
+
+\subsection*{Gra z adwersarzem}
+
+Dla każdego elementu $x$ adwersarz prowadzi listę
+„wiadomo, że~\,$x$ $>$ te elementy”.
+
+\paragraph{Reguła odpowiedzi.}
+Na zapytanie „$x\;?\;y$”
+adwersarz porównuje długości list $L(x)$ i~$L(y)$
+i zawsze ogłasza większym ten, którego lista jest dłuższa
+(remis rozstrzygany dowolnie).
+Po odpowiedzi listę zwycięzcy rozszerza o przegranego
+oraz wszystkie jego zapisane elementy.
+
+\subsection*{Konsekwencje}
+
+\begin{itemize}
+\item \
+Każde porównanie może co najwyżej
+\emph{podwoić} rozmiar listy zwycięzcy.
+\item \
+Aby jakiś element wskazać jako \emph{największy},
+jego lista musi urosnąć do $n$ pozycji,
+czyli potrzeba co najmniej
+$\lceil\log_2 n\rceil$ zwycięstw $\;(\ge n-1$ porównań
+na całym zbiorze).
+\item \
+Elementy zapisane w liście maksimum
+to \emph{jedyni kandydaci na drugie miejsce}.
+Tych kandydatów jest co najmniej
+$\lceil\log_2 n\rceil$,
+więc rozróżnienie ich wymaga dodatkowo
+co najmniej
+$\lceil\log_2 n\rceil-1$ porównań.
+\end{itemize}
+
+\[
+  (n-1)
+  +\bigl(\lceil\log_2 n\rceil-1\bigr)
+  \;=\;
+  n+\lceil\log_2 n\rceil-2
+\]
+— mniej się nie da.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Wniosek}
+
+Zarówno górna, jak i dolna granica
+pokrywają się z wartością
+\(
+  n+\lceil\log_2 n\rceil-2,
+\)
+więc jest to dokładna liczba
+porównań potrzebnych i wystarczających
+do wyznaczenia największego oraz
+drugiego największego elementu.
+\hfill$\square$
+
+\end{document}
