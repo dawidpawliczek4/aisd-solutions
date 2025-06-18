@@ -1,0 +1,124 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\Large Dawid Pawliczek\\
+Lista 5, Zadanie 7
+\end{center}
+
+\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Teza}
+
+W modelu drzew decyzyjnych każde scalanie
+\emph{dwóch} posortowanych ciągów długości~$n$
+wymaga w~najgorszym przypadku
+co~najmniej $2n-1$ porównań.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Gra z adwersarzem}
+
+Oznaczmy elementy pierwszego ciągu
+\(a_1<a_2<\dots<a_n\),
+drugiego
+\(b_1<b_2<\dots<b_n\).
+
+Adwersarz ogranicza przestrzeń wejść do
+\[
+  \mathcal X=\{X_0,X_1,\dots,X_{2n-1}\},
+\]
+gdzie
+\[
+\begin{aligned}
+X_0      &= a_1,b_1,a_2,b_2,\dots,a_n,b_n,\\
+X_{2k-1} &= X_0 \text{ z zamianą } b_k\!\leftrightarrow a_k,\\
+X_{2k}   &= X_0 \text{ z zamianą } b_k\!\leftrightarrow a_{k+1}
+           \quad(1\le k\le n-1).
+\end{aligned}
+\]
+Każdy $X_i$ jest poprawnym wynikiem scalania
+i wszystkie są różne, więc algorytm
+musi ostatecznie rozróżnić wszystkie $2n$ kandydatów.
+
+\paragraph{Odpowiedzi adwersarza.}
+Algorytm pyta tylko o relacje \(\,a_i\,\text{vs}\,b_j\).
+
+\begin{itemize}
+\item $|i-j|>1$: adwersarz odpowiada $a_i<b_j$
+      (nie eliminuje żadnego $X_k$).
+\item $i=j$:      adwersarz odpowiada $b_i<a_i$,
+      eliminując wyłącznie $X_{2i-1}$.
+\item $i=j+1$:    odpowiada $a_i<b_j$,
+      eliminując wyłącznie $X_{2j}$.
+\end{itemize}
+
+Każde pytanie usuwa z~$\mathcal X$
+\emph{co najwyżej jeden} ciąg;
+aby pozostał jeden, potrzeba co najmniej $2n-1$ pytań.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Przykład dla $n=3$}
+
+\subsection*{Zestaw kandydatów}
+
+\[
+\begin{aligned}
+X_0 &= a_1,\,b_1,\,a_2,\,b_2,\,a_3,\,b_3,\\
+X_1 &= b_1,\,a_1,\,a_2,\,b_2,\,a_3,\,b_3,\\
+X_2 &= a_1,\,a_2,\,b_1,\,b_2,\,a_3,\,b_3,\\
+X_3 &= a_1,\,b_1,\,b_2,\,a_2,\,a_3,\,b_3,\\
+X_4 &= a_1,\,b_1,\,a_2,\,a_3,\,b_2,\,b_3,\\
+X_5 &= a_1,\,b_1,\,a_2,\,b_2,\,b_3,\,a_3.
+\end{aligned}
+\]
+
+\subsection*{Jak adwersarz odpowiada na pytania}
+
+\renewcommand{\arraystretch}{1.25}
+\begin{center}
+\begin{tabular}{|c|l|c|c|l|}
+\hline
+\textbf{Typ} & \multicolumn{1}{c|}{\textbf{Przykład pytania}}
+             & \textbf{Odp.} & \textbf{Elim. $X_k$} & \multicolumn{1}{c|}{\textbf{Dlaczego}}\\\hline
+$|i-j|>1$ &
+$a_3 \;?\; b_1$ &
+$a_3<b_1$ &
+--- &
+w~żadnym $X_k$ nie ma $b_1<a_3$      \\\hline
+$i=j$ &
+$a_2 \;?\; b_2$ &
+$b_2<a_2$ &
+$X_3$ &
+bo tylko w $X_3$: $a_2<b_2$          \\\hline
+$i=j+1$ &
+$a_2 \;?\; b_1$ &
+$a_2<b_1$ &
+$X_2$ &
+bo tylko w $X_2$: $b_1<a_2$          \\\hline
+\end{tabular}
+\end{center}
+
+W każdym wierszu najwyżej \emph{jeden} kandydat
+staje się sprzeczny z odpowiedzią,
+zgodnie z ogólnym dowodem.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Wniosek}
+
+Aby zredukować $\lvert\mathcal X\rvert=2n$ kandydatów do jednego,
+algorytm musi zadać przynajmniej $2n-1$ pytań,
+co dowodzi dolnej granicy
+\[
+\boxed{\;2n-1\;}
+\]
+porównań dla scalania dwóch $n$‐elementowych ciągów.
+\hfill$\square$
+
+\end{document}
